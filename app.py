@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template_string
+import flask
 print("Flask module loaded from:", flask.__file__)
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
