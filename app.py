@@ -1,9 +1,19 @@
 from flask import Flask, request, redirect, render_template_string
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///messages.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-messages = []
+db = SQLAlchemy(app)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    msg = db.Column(db.Text, nullable=False)
+    time = db.Column(db.String(100), nullable=False)
+    
 HTML = """
 <!doctype html>
 <html>
@@ -42,16 +52,23 @@ HTML = """
 </html>
 """
 
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 @app.route('/', methods=['GET', "POST"])
 def index():
     if request.method == 'POST':
         name = request.form.get('name', "").strip()
         msg = request.form.get('msg', '').strip()
         if name and msg:
-           time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-           messages.append({'name': name, 'msg': msg, 'time': time})
+            time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            new_msg = Message(name=name, msg=msg, time=time)
+            db.session.add(new_msg)
+            db.session.commit()
         return redirect('/')
-    return render_template_string(HTML, messages=messages)
+    all_messages = Message.query.order_by(Message.id.desc()).all()
+    return render_template_string(HTML, messages=all_messages)
 
 
 if __name__ == '__main__':
