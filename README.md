@@ -1,4 +1,4 @@
-📬 stanCode MessageBoard
+📬 #stanCode MessageBoard
 A minimal Flask-based web message board that allows users to post and view messages. Built with simplicity in mind — great for learning and quick deployment.
 
 📝 Features
