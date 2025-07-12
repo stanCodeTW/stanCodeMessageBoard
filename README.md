@@ -8,7 +8,7 @@ View message history with timestamps
 
 Clean HTML-based UI using Flask template rendering
 
-Server runs on http://localhost:8000 by default
+Server runs on https://stancodemessageboard.onrender.com/ by default
 
 ## 📦 Requirements
 Python 3.7+
