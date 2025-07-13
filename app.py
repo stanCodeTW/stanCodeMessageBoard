@@ -6,11 +6,11 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-db.create_all()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///messages.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+db.create_all()
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
