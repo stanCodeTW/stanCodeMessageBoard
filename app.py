@@ -10,7 +10,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-db.create_all()
+with app.app_context():  # ✅ 進入 app 的 context
+    db.create_all()
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
