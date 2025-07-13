@@ -5,7 +5,9 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
+print('='*80)
 print(os.environ.get('DATABASE_URL'))
+print('='*80)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
