@@ -46,7 +46,7 @@ HTML = """
     <strong>{{ele.name}}</strong> 說：
     </p>
 
-    <blockquote>{{ele['msg']}}</blockquote>
+    <blockquote>{{ele.msg}}</blockquote>
 
     <p style="font-size: 0.9em; color: gray;">
     {{ele.time}}
@@ -60,7 +60,7 @@ HTML = """
 def init_db():
     db.create_all()
 
-@app.route('/', methods=['GET', "POST"])
+@app.route('/', methods=['GET', "POST", "HEAD"])
 def index():
     with app.app_context(): 
         if request.method == 'POST':
@@ -77,7 +77,9 @@ def index():
 
 
 if __name__ == '__main__':
-    # 進入 app context 再執行與 db 相關的操作
     with app.app_context():
         init_db()
+        if not db.engine.dialect.has_table(db.engine, 'message'):
+            print("Table 'message' does not exist, creating it...")
+            db.create_all()
     app.run(host='0.0.0.0', port=8000)
