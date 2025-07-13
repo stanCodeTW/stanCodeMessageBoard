@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-with app.app_context():  # ✅ 進入 app 的 context
+def init_db():
     db.create_all()
 
 class Message(db.Model):
@@ -73,4 +73,7 @@ def index():
 
 
 if __name__ == '__main__':
+    # 進入 app context 再執行與 db 相關的操作
+    with app.app_context():
+        init_db()
     app.run(host='0.0.0.0', port=8000)
