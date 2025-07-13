@@ -37,7 +37,7 @@ HTML = """
         <p>
             <button type='submit'>送出</button>
         </p>
-    <form>
+    </form>
     
     <h2>留言列表：</h2>
     <hr>
