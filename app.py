@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
+db.create_all()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///messages.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -54,10 +55,6 @@ HTML = """
 </body>
 </html>
 """
-
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 @app.route('/', methods=['GET', "POST"])
 def index():
