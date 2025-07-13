@@ -59,17 +59,18 @@ HTML = """
 
 @app.route('/', methods=['GET', "POST"])
 def index():
-    if request.method == 'POST':
-        name = request.form.get('name', "").strip()
-        msg = request.form.get('msg', '').strip()
-        if name and msg:
-            time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            new_msg = Message(name=name, msg=msg, time=time)
-            db.session.add(new_msg)
-            db.session.commit()
-        return redirect('/')
-    all_messages = Message.query.order_by(Message.id.desc()).all()
-    return render_template_string(HTML, messages=all_messages)
+    with app.app_context(): 
+        if request.method == 'POST':
+            name = request.form.get('name', "").strip()
+            msg = request.form.get('msg', '').strip()
+            if name and msg:
+                time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                new_msg = Message(name=name, msg=msg, time=time)
+                db.session.add(new_msg)
+                db.session.commit()
+            return redirect('/')
+        all_messages = Message.query.order_by(Message.id.desc()).all()
+        return render_template_string(HTML, messages=all_messages)
 
 
 if __name__ == '__main__':
