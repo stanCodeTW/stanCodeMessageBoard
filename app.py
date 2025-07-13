@@ -1,24 +1,25 @@
 from flask import Flask, request, redirect, render_template_string
-import flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 import os
 
 app = Flask(__name__)
-print('='*80)
-print(os.environ.get('DATABASE_URL'))
-print('='*80)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     msg = db.Column(db.Text, nullable=False)
     time = db.Column(db.String(100), nullable=False)
-    
+
 HTML = """
 <!doctype html>
 <html>
@@ -43,15 +44,12 @@ HTML = """
     <hr>
     {% for ele in messages %}
     <p>
-    <strong>{{ele.name}}</strong> 說：
+    <strong>{{ ele.name }}</strong> 說：
     </p>
-
-    <blockquote>{{ele.msg}}</blockquote>
-
+    <blockquote>{{ ele.msg }}</blockquote>
     <p style="font-size: 0.9em; color: gray;">
-    {{ele.time}}
+    {{ ele.time }}
     </p>
-
     {% endfor %}
 </body>
 </html>
@@ -60,7 +58,7 @@ HTML = """
 def init_db():
     db.create_all()
 
-@app.route('/', methods=['GET', "POST", "HEAD"])
+@app.route('/', methods=['GET', 'POST', 'HEAD'])
 def index():
     with app.app_context(): 
         if request.method == 'POST':
@@ -72,9 +70,10 @@ def index():
                 db.session.add(new_msg)
                 db.session.commit()
             return redirect('/')
+        elif request.method == 'HEAD':
+            return '', 200
         all_messages = Message.query.order_by(Message.id.desc()).all()
         return render_template_string(HTML, messages=all_messages)
-
 
 if __name__ == '__main__':
     with app.app_context():
