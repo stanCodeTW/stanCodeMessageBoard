@@ -2,14 +2,27 @@ from flask import Flask, request, redirect, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 import os
 
 app = Flask(__name__)
+
+# Debug DATABASE_URL and connection
 database_url = os.environ.get('DATABASE_URL')
+print(f"DATABASE_URL: {database_url}")
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Test database connection
+try:
+    engine = create_engine(database_url)
+    with engine.connect() as conn:
+        print("Database connection successful!")
+except OperationalError as e:
+    print(f"Database connection failed: {e}")
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -55,12 +68,20 @@ HTML = """
 </html>
 """
 
-def init_db():
-    db.create_all()
-
 @app.route('/', methods=['GET', 'POST', 'HEAD'])
 def index():
-    with app.app_context(): 
+    with app.app_context():
+        # Debug table existence
+        print("Checking if 'message' table exists...")
+        table_exists = db.engine.dialect.has_table(db.engine, 'message')
+        print(f"Table exists: {table_exists}")
+        if not table_exists:
+            print("Creating 'message' table...")
+            try:
+                db.create_all()
+                print("Table creation successful!")
+            except Exception as e:
+                print(f"Table creation failed: {e}")
         if request.method == 'POST':
             name = request.form.get('name', "").strip()
             msg = request.form.get('msg', '').strip()
@@ -76,9 +97,4 @@ def index():
         return render_template_string(HTML, messages=all_messages)
 
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
-        if not db.engine.dialect.has_table(db.engine, 'message'):
-            print("Table 'message' does not exist, creating it...")
-            db.create_all()
     app.run(host='0.0.0.0', port=8000)
