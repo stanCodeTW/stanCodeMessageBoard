@@ -1,6 +1,5 @@
 from flask import Flask, request, redirect, render_template_string
 import flask
-print("Flask module loaded from:", flask.__file__)
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
@@ -10,8 +9,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-def init_db():
-    db.create_all()
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +53,9 @@ HTML = """
 </body>
 </html>
 """
+
+def init_db():
+    db.create_all()
 
 @app.route('/', methods=['GET', "POST"])
 def index():
