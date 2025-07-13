@@ -2,7 +2,7 @@ from flask import Flask, request, redirect, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.exc import OperationalError
 import os
 
@@ -73,7 +73,8 @@ def index():
     with app.app_context():
         # Debug table existence
         print("Checking if 'message' table exists...")
-        table_exists = db.engine.dialect.has_table(db.engine, 'message')
+        inspector = inspect(db.engine)
+        table_exists = inspector.has_table('message')
         print(f"Table exists: {table_exists}")
         if not table_exists:
             print("Creating 'message' table...")
