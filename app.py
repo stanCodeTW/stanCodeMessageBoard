@@ -10,7 +10,6 @@ app = Flask(__name__)
 
 # Debug DATABASE_URL and connection
 database_url = os.environ.get('DATABASE_URL')
-print(f"DATABASE_URL: {database_url}")
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
